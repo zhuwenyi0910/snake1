@@ -12,21 +12,36 @@ cc.Class({
             type: cc.Prefab
         },
     
-     
+        speetNode: {
+            default: null,
+            type: cc.Node
+        },
+        BtnRestartNode: {
+			default: null,
+			type: cc.Node
+		},
+        gameOverNode: {
+			default: null,
+			type: cc.Node
+		},
+
         bodyNum: 2,
      
         sectionLen: 25,
 
-        time: 5
+        time: 35
     
     },
 
 
 
     onLoad () {
+        this.BtnRestartNode.active =false;
+
         this.snakeArray = [];
         this.snakeArray.push(this.node);
         
+
         this.node.color = this.randomColor();
         this.node.setPosition(this.randomPos());
         this.rotateHead(this.node.position);
@@ -34,6 +49,7 @@ cc.Class({
         this.speed = this.sectionLen / this.time;
         this.pointsArray = [];
 
+        // 初始化的身体
         for (let i=1; i<=this.bodyNum; i++)
         this.getNewBody();
         
@@ -48,6 +64,36 @@ cc.Class({
     this.node.parent.addChild(newFood);
     },
 
+    Restart () {
+        this.BtnRestartNode.active = false;
+        this.gameOverNode.active = false;
+
+        this.snakeArray = [];
+        this.snakeArray.push(this.node);
+        
+
+        this.node.color = this.randomColor();
+        this.node.setPosition(this.randomPos());
+        this.rotateHead(this.node.position);
+
+        this.speed = this.sectionLen / this.time;
+        this.pointsArray = [];
+
+        // 初始化的身体
+        for (let i=1; i<=this.bodyNum; i++)
+        this.getNewBody();
+        
+        this.dir = null;
+
+        this.headPointsNum = 0;
+
+        let manager = cc.director.getCollisionManager();
+    manager.enabled = true;
+ 
+    /*let newFood = cc.instantiate(this.foodPrefab);
+    this.node.parent.addChild(newFood);*/
+    },
+
     randomColor () {
         let red = Math.round(Math.random()*255);
         let green = Math.round(Math.random()*255);
@@ -58,8 +104,8 @@ cc.Class({
     randomPos () {
         let width = this.node.parent.width;
         let height = this.node.parent.height;
-        let x = Math.round(Math.random()*width) - width/2;
-        let y = Math.round(Math.random()*height) - height/2;
+        let x = 0;
+        let y = 0;
         return cc.v2(x, y);
     },
 
@@ -113,6 +159,7 @@ cc.Class({
     },
     
     moveSnake() {
+        // 蛇头移动
         let dis = this.dir.mul(this.speed);
         this.node.setPosition(this.node.position.add(dis));
         this.pointsArray.push(this.node.position);
@@ -124,6 +171,15 @@ cc.Class({
             this.snakeArray[i].curIndex += 1;
         }
     
+    },
+
+    speetStartCallBack(){
+        //if(speet)
+            this.speed *= 2;
+    },
+    speetEndCallBack(){
+        //if(speet)
+            this.speed /= 2; 
     },
 
 
@@ -142,22 +198,16 @@ cc.Class({
         this.getNewBody();
     },
 
-    judgeSnakeDie() {
-        if (this.head.x > this.head.parent.width / 2 || this.head.x < -this.head.parent.width / 2 || this.head.y > this.head.parent.height / 2 || this.head.y < -this.head.parent.height / 2) {
-            console.log("出界死亡");
-        }
-    },
-    
-
     start () {
 
     },
 
     update (dt) {
         if (this.dir) {
+            // 改变蛇头的方向
             this.rotateHead(this.dir);
             this.moveSnake();
-
-        }    
+        }
+            
     },
 });
