@@ -6,8 +6,18 @@ cc.Class({
             default: null,
             type: cc.Node
         },
-        
-        
+        gameOverNode: {
+			default: null,
+			type: cc.Node
+		},
+        btnNode: {
+			default: null,
+			type: cc.Node
+		},
+        BtnRestartNode: {
+			default: null,
+			type: cc.Node
+		},
     },
 
     
@@ -15,7 +25,8 @@ cc.Class({
     onLoad () {
         cc.debug.setDisplayStats(false);
         this.joyStickBtn = this.node.children[0]; 
-        
+		this.gameOverNode.active = false;
+        //this.enabled = false;
  
     this.node.on('touchstart', this.onTouchStart, this);
     this.node.on('touchmove', this.onTouchMove, this);
@@ -32,14 +43,26 @@ cc.Class({
     },
 
     onTouchStart(event) { 
+        this.btnNode.active = false;
+        this.gameOverNode.active = false;
+        this.enabled = false;
         let pos = this.node.convertToNodeSpaceAR(event.getLocation());
         this.joyStickBtn.setPosition(pos);
+        this.startMoveAt();
     },
-     
+    
+    startMoveAt() {
+		this.enabled = true;
+	}, 
+    stopMoveAt(){
+        this.enabled = false;
+    },
     onTouchMove(event) {
+        //不断改变joyStickBtn的位置
         let posDelta = event.getDelta();
         this.joyStickBtn.setPosition(this.joyStickBtn.position.add(posDelta));
-                
+        
+        // 得到方向
         let dir = this.joyStickBtn.position.normalize();
         this.head.getComponent('Head').dir = dir;
     },
@@ -65,17 +88,37 @@ cc.Class({
     if (ratio > 1) {
         this.joyStickBtn.setPosition(this.joyStickBtn.position.div(ratio));
     }
-
+        
     if (this.head.x > this.head.parent.width / 2)
-        this.head.x = this.head.parent.width / 2;
+        {
+				this.gameOverNode.active = true;
+                this.stopMoveAt();
+                this.BtnRestartNode.active = true;
+                this.head.getComponent('Head').speed = 0 ;
+        }
     else if (this.head.x < -this.head.parent.width / 2)
-        this.head.x = -this.head.parent.width /2;
- 
+        {
+            this.gameOverNode.active = true;
+            this.stopMoveAt();
+            this.BtnRestartNode.active = true;
+            this.head.getComponent('Head').speed = 0 ;
+        }
     if (this.head.y > this.head.parent.height / 2)
-        this.head.y = this.head.parent.height / 2;
+        {
+            this.gameOverNode.active = true;
+            this.stopMoveAt();
+            this.BtnRestartNode.active = true;
+            this.speed = 0;
+            this.head.getComponent('Head').speed = 0 ;
+        }
     else if (this.head.y < -this.head.parent.height / 2)
-        this.head.y = -this.head.parent.height / 2;
-
+        {
+            this.gameOverNode.active = true;
+            this.stopMoveAt();
+            this.BtnRestartNode.active = true;
+            this.speed = 0;
+            this.head.getComponent('Head').speed = 0 ;
+        }
     },
     
 });
